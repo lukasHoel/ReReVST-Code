@@ -1,5 +1,4 @@
 train/out*
-train/val
 train/log
 test/log
 test/result*
