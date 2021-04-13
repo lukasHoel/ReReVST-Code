@@ -148,7 +148,9 @@ def LoadPretrained(checkpoint):
 if opt.continue_training:
     checkpoint = glob.glob('%s/style_net-epoch-%d*.pth' % (opt.outf, opt.load_epoch))
     if len(checkpoint) == 0:
-        exit('Cannot find checkpoint.')
+        checkpoint = glob.glob('style_net-epoch-%d*.pth' % (opt.load_epoch))
+        if len(checkpoint) == 0:
+            exit('Cannot find checkpoint.')
     if len(checkpoint) > 1:
         exit('Too many checkpoints')
 else:
@@ -371,6 +373,7 @@ for epoch in range(opt.load_epoch+1, opt.epoches+1):
         # Losses
 
         Loss = 0.
+        Loss = torch.zeros(1).type_as(Style)
 
         if opt.temporal_loss:
             SecondFrame, ForwardFlow = TemporalLoss.GenerateFakeData(FirstFrame)
@@ -410,7 +413,6 @@ for epoch in range(opt.load_epoch+1, opt.epoches+1):
             loss_G_GAN = 0.
 
         # Update
-        
         Loss.backward()
         optimizer.step()
 

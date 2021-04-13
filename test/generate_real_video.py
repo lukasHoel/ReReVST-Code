@@ -1,3 +1,5 @@
+import argparse
+
 import cv2
 import glob
 import os
@@ -16,17 +18,31 @@ from framework import Stylization
 ## -------------------
 ##  Parameters
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--style_img', required=True, help='path to style image')
+parser.add_argument('--rgb', required=True, help='path to rgb image folder')
+parser.add_argument('--model', required=True, help='path to pretrained model.pth file')
+parser.add_argument('--out', required=True, help='path to output directory')
+
+opt = parser.parse_args()
 
 # Target style
-style_img = './inputs/plum_flower.jpg'
+#style_img = './inputs/plum_flower.jpg'
+#style_img = '/mnt/raid/teampc/styles/21styles/0.jpg'
+style_img = opt.style_img
 
 # Target content video
 # Use glob.glob() to search for all the frames
 # Add sort them by sort()
-content_video = './inputs/ambush_4/*.png'
+#content_video = './inputs/ambush_4/*.png'
+#content_video = '/home/lukas/datasets/ScanNet/images/scene0230_00/color/*.jpg'
+#content_video = '/mnt/raid/teampc/scannet/train/images/scene0230_00/color/*.jpg'
+content_video = opt.rgb
 
 # Path of the checkpoint (please download and replace the empty file)
-checkpoint_path = "./Model/style_net-TIP-final.pth"
+#checkpoint_path = "./Model/style_net-TIP-final.pth"
+#checkpoint_path = "../train/style_net-latest-epoch-1(6.00e+01)(W_8_10)(Sigma_1.00e-03)-Wed Apr  7 10:22:02 2021 RandomID 72.pth"
+checkpoint_path = opt.model
 
 # Device settings, use cuda if available
 cuda = torch.cuda.is_available()
@@ -39,8 +55,8 @@ save_video = True
 fps = 24
 
 # Where to save the results
-result_frames_path = './result_frames/'
-result_videos_path = './result_videos/'
+result_frames_path = f'{opt.out}/result_frames/'
+result_videos_path = f'{opt.out}/result_videos/'
 
 
 ## -------------------
@@ -99,7 +115,9 @@ framework = Stylization(checkpoint_path, cuda, use_Global)
 framework.prepare_style(style)
 
 # Read content frames
-frame_list = glob.glob(content_video)
+#frame_list = glob.glob(content_video)
+frame_list = sorted(os.listdir(content_video), key=lambda x: int(x.split(".")[0]))
+frame_list = [os.path.join(content_video, f) for f in frame_list]
 
 # Name for this testing
 style_name = (style_img.split('/')[-1]).split('.')[0]
