@@ -116,7 +116,8 @@ framework.prepare_style(style)
 
 # Read content frames
 #frame_list = glob.glob(content_video)
-frame_list = sorted(os.listdir(content_video), key=lambda x: int(x.split(".")[0]))
+frame_list = [f for f in os.listdir(content_video) if "jpg" in f or "png" in f]
+frame_list = sorted(frame_list, key=lambda x: int(x.split(".")[0]))
 frame_list = [os.path.join(content_video, f) for f in frame_list]
 
 # Name for this testing
@@ -150,14 +151,19 @@ if use_Global:
     framework.clean()
     interval = 8
     sample_sum = (frame_num-1)//interval
+    while sample_sum > 50:
+        interval *= 2
+        sample_sum = (frame_num-1)//interval
     
     for s in range(sample_sum):
         i = s * interval
         print('Add frame %d , %d frames in total'%(s, sample_sum))
         input_frame = read_img(frame_list[i])
+        input_frame = cv2.resize(input_frame, (256, 256))
         framework.add(input_frame)
 
     input_frame = read_img(frame_list[-1])
+    input_frame = cv2.resize(input_frame, (256, 256))
     framework.add(input_frame)
 
     print('Computing global features')

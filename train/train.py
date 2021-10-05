@@ -165,7 +165,7 @@ print(style_net)
 
 
 # Set devices
-os.environ["CUDA_VISIBLE_DEVICES"] = "%d"%(opt.gpu)
+#os.environ["CUDA_VISIBLE_DEVICES"] = "%d"%(opt.gpu)
 device = torch.device("cuda" if opt.cuda else "cpu")
 style_net = style_net.to(device)
 
@@ -446,13 +446,15 @@ for epoch in range(opt.load_epoch+1, opt.epoches+1):
                                                 }, iteration)
 
         if iteration % opt.log == 0:
+            print("would save model if loss better")
             cur_total_loss /= opt.log
 
-            if cur_total_loss < min_total_loss:
+            if cur_total_loss < min_total_loss or True:
                 min_total_loss = cur_total_loss
                 torch.save(optimizer.state_dict(), '%s/optimizer-epoch-%d.pth' % (opt.outf, epoch))
                 torch.save(style_net.state_dict(), '%s/style_net-latest-epoch-%d(%.2e)(W_%d_%d)(Sigma_%.2e)-%s.pth' % 
                     (opt.outf, 1, opt.temporalWeight, opt.data_w * opt.data_motion_level, opt.data_w * opt.data_shift_level, opt.data_sigma * opt.data_noise_level, TimeName))
+                print("saved model")
 
                 if opt.adaversarial_loss:
                     torch.save(netD.state_dict(), '%s/netD-epoch-%d.pth' % (opt.outf, epoch))
